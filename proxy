@@ -60,7 +60,6 @@ function status() {
     echo "No pid file found"
     exit 1
   fi
-
 }
 
 case $1 in
