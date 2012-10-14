@@ -22,7 +22,7 @@ function start() {
   else
     echo "Starting proxy..."
     nohup ssh -T -N -D$port $user@$host >/dev/null 2>&1 &
-    pid=`ps -ef | grep ssh | grep scrapping-tools.com | grep -v grep | awk '{print $2}'`
+    pid=`ps -ef | grep ssh | grep $host | grep -v grep | awk '{print $2}'`
     if [ $? == 0 ]
        then
          echo "Success pid: $pid, port: $port"
