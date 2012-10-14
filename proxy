@@ -1,0 +1,72 @@
+#!/bin/bash
+
+pid_file="/tmp/.vpn.pid"
+port=3128
+host="localhost"
+user="root"
+
+function usage() {
+  echo "$0 [start|stop|status]"
+  exit 0
+}
+
+function clean() {
+  rm -f $pid_file && echo "Removed PID" || echo "No pid found"
+}
+
+function start() {
+  if [[ -f $pid_file ]]
+    then
+      echo "Looks like pid file exists please remove it first: $pid_file"
+      exit 1
+  else
+    echo "Starting proxy..."
+    nohup ssh -T -N -D$port $user@$host >/dev/null 2>&1 &
+    pid=`ps -ef | grep ssh | grep $host | grep -v grep | awk '{print $2}'`
+    if [ $? == 0 ]
+       then
+         echo "Success pid: $pid, port: $port"
+         echo $pid > $pid_file
+         exit 0
+    else
+         echo "Failed"
+         exit 1
+    fi
+  fi
+}
+
+function stop() {
+  if [[ -f $pid_file ]]
+    then
+      echo "Stopping VPN"
+      pid=`awk '{print $1}' $pid_file`
+      echo "PID: $pid, stopping vpn"
+      kill -9 $pid >/dev/null 2>&1 && rm -f $pid_file && echo "VPN Stopped"
+      exit 0
+  else
+    echo "No pid file found"
+    exit 1
+  fi
+}
+
+function status() {
+  if [[ -f $pid_file ]]
+    then
+      pid=`awk '{print $1}' $pid_file`
+      echo "PID: $pid"
+      ps -ef | grep $pid | grep -v grep >/dev/null 2>&1 || clean
+      exit 0
+  else
+    echo "No pid file found"
+    exit 1
+  fi
+
+}
+
+case $1 in
+  start)  start ;;
+  stop)   stop  ;;
+  status) status ;;
+  clean)  clean ;;
+  *)      usage ;;
+esac
