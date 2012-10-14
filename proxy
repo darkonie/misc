@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# maksym.naboka@gmail.com
+
 pid_file="/tmp/.vpn.pid"
 port=3128
 host="localhost"
